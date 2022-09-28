@@ -1,0 +1,20 @@
+ewp_institutions_domains.hei_domain_list.*:
+  type: config_entity
+  label: Institution domain list
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    hei_id:
+      type: string
+      label: Institution ID
+    patterns:
+      type: sequence
+      label: Domain patterns
+      sequence:
+        type: string

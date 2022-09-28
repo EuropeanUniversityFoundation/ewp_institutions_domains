@@ -1,0 +1,6 @@
+entity.hei_domain_list.overview:
+  title: Institution domains
+  parent: ewp_institutions.admin
+  description: 'List of institution domain lists.'
+  route_name: entity.hei_domain_list.collection
+  weight: 20

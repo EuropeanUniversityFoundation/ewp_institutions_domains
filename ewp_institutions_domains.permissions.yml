@@ -1,0 +1,3 @@
+administer institution domains:
+  title: 'Administer Institution domains'
+  restrict access: true

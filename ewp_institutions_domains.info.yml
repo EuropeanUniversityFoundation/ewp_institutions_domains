@@ -1,0 +1,9 @@
+name: EWP Institutions domains
+type: module
+description: Associates domains with Institution IDs.
+package: EWP
+core_version_requirement: ^9 || ^10
+configure: entity.hei_domain_list.collection
+dependencies:
+  - ewp_core:ewp_core
+  - ewp_institutions:ewp_institutions

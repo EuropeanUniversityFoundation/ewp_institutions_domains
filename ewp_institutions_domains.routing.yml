@@ -1,0 +1,31 @@
+entity.hei_domain_list.collection:
+  path: '/admin/ewp/hei/domains'
+  defaults:
+    _entity_list: 'hei_domain_list'
+    _title: 'Institution domain list configuration'
+  requirements:
+    _permission: 'administer institution domains'
+
+entity.hei_domain_list.add_form:
+  path: '/admin/ewp/hei/domains/add'
+  defaults:
+    _entity_form: 'hei_domain_list.add'
+    _title: 'Add institution domain list'
+  requirements:
+    _permission: 'administer institution domains'
+
+entity.hei_domain_list.edit_form:
+  path: '/admin/ewp/hei/domains/{hei_domain_list}'
+  defaults:
+    _entity_form: 'hei_domain_list.edit'
+    _title: 'Edit institution domain list'
+  requirements:
+    _permission: 'administer institution domains'
+
+entity.hei_domain_list.delete_form:
+  path: '/admin/ewp/hei/domains/{hei_domain_list}/delete'
+  defaults:
+    _entity_form: 'hei_domain_list.delete'
+    _title: 'Delete institution domain list'
+  requirements:
+    _permission: 'administer institution domains'

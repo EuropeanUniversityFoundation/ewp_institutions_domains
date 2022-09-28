@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the ewp_institutions_domains module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function ewp_institutions_domains_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ewp_institutions_domains_uninstall() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}

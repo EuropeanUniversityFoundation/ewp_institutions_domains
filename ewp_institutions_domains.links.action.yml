@@ -1,0 +1,5 @@
+entity.hei_domain_list.add_form:
+  route_name: 'entity.hei_domain_list.add_form'
+  title: 'Add institution domain list'
+  appears_on:
+    - entity.hei_domain_list.collection
