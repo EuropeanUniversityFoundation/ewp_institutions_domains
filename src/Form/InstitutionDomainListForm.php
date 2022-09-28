@@ -87,6 +87,23 @@ class InstitutionDomainListForm extends EntityForm {
       $this->messenger()->addWarning($warning);
     }
 
+    $exists = $this->entityTypeManager
+      ->getStorage('hei_domain_list')
+      ->loadByProperties([
+        'status' => TRUE,
+        'hei_id' => $form_state->getValue('hei_id'),
+      ]);
+
+    if ($form_state->getValue('status') && !empty($exists)) {
+      $this->entity->set('status', FALSE);
+      $warning = $this->t('@type %entity cannot be enabled when @condition.', [
+        '@type' => $this->entity->getEntityType()->getLabel(),
+        '%entity' => $this->entity->label(),
+        '@condition' => $this->t('the same Institution ID is already in use.')
+      ]);
+      $this->messenger()->addWarning($warning);
+    }
+
     $result = $this->entity->save();
     $message_args = ['%label' => $this->entity->label()];
     $message = $result == SAVED_NEW
