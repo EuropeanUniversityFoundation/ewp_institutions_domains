@@ -1,0 +1,4 @@
+services:
+  ewp_institutions_domains:
+    class: Drupal\ewp_institutions_domains\InstitutionDomainHandler
+    arguments: ['@entity_type.manager', '@logger.factory', '@string_translation']

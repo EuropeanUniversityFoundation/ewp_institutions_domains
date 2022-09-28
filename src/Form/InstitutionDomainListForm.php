@@ -4,6 +4,8 @@ namespace Drupal\ewp_institutions_domains\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ewp_institutions_domains\InstitutionDomainHandler;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Institution domain list form.
@@ -13,9 +15,28 @@ use Drupal\Core\Form\FormStateInterface;
 class InstitutionDomainListForm extends EntityForm {
 
   /**
+   * The Institution domain handler service.
+   *
+   * @var \Drupal\ewp_institutions_domains\InstitutionDomainHandler
+   */
+  protected $domainHandler;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    $instance = parent::create($container);
+    $instance->domainHandler = $container->get('ewp_institutions_domains');
+    return $instance;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
+    dpm($this);
+
     $form = parent::form($form, $form_state);
 
     $form['label'] = [
