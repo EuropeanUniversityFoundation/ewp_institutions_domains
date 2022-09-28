@@ -35,8 +35,6 @@ class InstitutionDomainListForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    dpm($this);
-
     $form = parent::form($form, $form_state);
 
     $form['label'] = [
@@ -87,6 +85,48 @@ class InstitutionDomainListForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    // Convert multiline text to array of patterns.
+    $new_patterns = array_filter(
+      array_map(
+        'trim', explode(
+          "\n", $form_state->getValue('patterns')
+        )
+      ), 'strlen'
+    );
+
+    $new_hei_id = $form_state->getValue('hei_id');
+
+    if (!empty($new_patterns)) {
+      // Get all known patterns.
+      $all_patterns = $this->domainHandler->getPatterns();
+
+      // Ignore the known patterns belonging to this entity.
+      if (\array_key_exists($form_state->getValue('id'), $all_patterns)) {
+        unset($all_patterns[$form_state->getValue('id')]);
+      }
+
+      foreach ($all_patterns as $id => $patterns) {
+        $hei_id = $this->domainHandler->getList($id)->heiId();
+        // Find common items, ignoring entities with the same Institution ID.
+        if (
+          $hei_id !== $new_hei_id &&
+          !empty(\array_intersect($new_patterns, $patterns))
+        ) {
+          $overlap = \array_values(\array_intersect($new_patterns, $patterns));
+          $error = $this->t('Pattern %pattern already in use by %entity', [
+            '%pattern' => \implode(', ', $overlap),
+            '%entity' => $this->domainHandler->getList($id)->label(),
+          ]);
+          $form_state->setErrorByName('patterns', $error);
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(array $form, FormStateInterface $form_state) {
     // Convert multiline text to array of patterns.
     $patterns = array_filter(
@@ -114,6 +154,10 @@ class InstitutionDomainListForm extends EntityForm {
         'status' => TRUE,
         'hei_id' => $form_state->getValue('hei_id'),
       ]);
+
+    if (\array_key_exists($form_state->getValue('id'), $exists)) {
+      unset($exists[$form_state->getValue('id')]);
+    }
 
     if ($form_state->getValue('status') && !empty($exists)) {
       $this->entity->set('status', FALSE);

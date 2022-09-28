@@ -112,5 +112,22 @@ class InstitutionDomainHandler {
     return $domain_list;
   }
 
+  /**
+   * Get a list of domain patterns per domain list.
+   *
+   * @return array $patterns
+   */
+  public function getPatterns(): array {
+    $patterns = [];
+
+    $lists = $this->getLists();
+
+    foreach ($lists as $id => $object) {
+      $patterns[$id] = $object->patterns();
+    }
+
+    return $patterns;
+  }
+
 
 }
