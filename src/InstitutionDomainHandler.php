@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\ewp_institutions_domains\Entity\InstitutionDomainList;
 
 /**
@@ -19,6 +20,8 @@ class InstitutionDomainHandler {
   const HEI_ID = 'hei_id';
   const PATTERNS = 'patterns';
   const STATUS = 'status';
+
+  const MAIL = 'mail';
 
   const WILDCARDS = "/^[*?]+$/";
 
@@ -163,5 +166,73 @@ class InstitutionDomainHandler {
     return $this->matchPattern($pattern, NULL);
   }
 
+  /**
+   * Alter the user registration form.
+   *
+   * @param array $form
+   * @param Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function formAlter(&$form, FormStateInterface $form_state) {
+    $form['#validate'][] = [$this, 'validateEmail'];
+  }
 
+  /**
+   * Validate email address.
+   *
+   * @param array $form
+   * @param Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function validateEmail(&$form, FormStateInterface $form_state) {
+    // Ignore validation if mail already has an error.
+    $errors = $form_state->getErrors();
+    if (!empty($errors[self::MAIL])) {
+      return;
+    }
+
+    $mail = explode('@', $form_state->getValue(self::MAIL));
+
+    $matches = [];
+
+    foreach ($this->getPatterns() as $id => $patterns) {
+      foreach ($patterns as $pattern) {
+        $result = $this->matchPattern($pattern, $mail[1]);
+        if ($result === 1) { $matches[$id][] = $pattern; }
+      }
+    }
+
+    if (\count($matches) !== 1) {
+      if (empty(\count($matches))) {
+        $error = $this->t('The account cannot be created. @message', [
+          '@message' => $this->t('The email domain %domain is not allowed.', [
+            '%domain' => $mail[1],
+          ]),
+        ]);
+      }
+      else {
+        $error = $this->t('The account cannot be created. @message', [
+          '@message' => $this->t('Please contact the system administrator.'),
+        ]);
+
+        $lists = [];
+
+        foreach ($matches as $id => $patterns) {
+          $lists[] = $this->t('@label (@id)', [
+            '@label' => $this->getList($id)->label(),
+            '@id' => $id,
+          ]);
+        }
+
+        $record = $this->t('Email validation failed: @description', [
+          '@description' => $this->t('%mail matched patterns in @lists.', [
+            '%mail' => $form_state->getValue(self::MAIL),
+            '@lists' => \implode(', ', $lists),
+          ])
+        ]);
+
+        $this->logger->error($record);
+      }
+
+      $form_state->setErrorByName(self::MAIL, $error);
+    }
+  }
 }
