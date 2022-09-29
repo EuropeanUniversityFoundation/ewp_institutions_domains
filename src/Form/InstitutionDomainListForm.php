@@ -98,29 +98,43 @@ class InstitutionDomainListForm extends EntityForm {
     $new_hei_id = $form_state->getValue('hei_id');
 
     if (!empty($new_patterns)) {
-      // Get all known patterns.
-      $all_patterns = $this->domainHandler->getPatterns();
-
-      // Ignore the known patterns belonging to this entity.
-      if (\array_key_exists($form_state->getValue('id'), $all_patterns)) {
-        unset($all_patterns[$form_state->getValue('id')]);
-      }
-
-      foreach ($all_patterns as $id => $patterns) {
-        $hei_id = $this->domainHandler->getList($id)->heiId();
-        // Find common items, ignoring entities with the same Institution ID.
-        if (
-          $hei_id !== $new_hei_id &&
-          !empty(\array_intersect($new_patterns, $patterns))
-        ) {
-          $overlap = \array_values(\array_intersect($new_patterns, $patterns));
-          $error = $this->t('Pattern %pattern already in use by %entity', [
-            '%pattern' => \implode(', ', $overlap),
-            '%entity' => $this->domainHandler->getList($id)->label(),
+      // First validate the patterns.
+      foreach ($new_patterns as $idx => $pattern) {
+        $match_result = $this->domainHandler->validatePattern($pattern);
+        if ($match_result === FALSE) {
+          $error = $this->t('Pattern %pattern is invalid.', [
+            '%pattern' => $pattern,
           ]);
-          $form_state->setErrorByName('patterns', $error);
         }
       }
+
+      if (empty($error)) {
+        // Get all known patterns.
+        $all_patterns = $this->domainHandler->getPatterns();
+
+        // Ignore the known patterns belonging to this entity.
+        if (\array_key_exists($form_state->getValue('id'), $all_patterns)) {
+          unset($all_patterns[$form_state->getValue('id')]);
+        }
+
+        foreach ($all_patterns as $id => $patterns) {
+          if (empty($error)) {
+            $common = \array_values(\array_intersect($new_patterns, $patterns));
+            $hei_id = $this->domainHandler->getList($id)->heiId();
+            // Find common items, ignore entities with the same Institution ID.
+            if ($hei_id !== $new_hei_id && !empty($common)) {
+              $error = $this->t('Pattern %pattern already in use by %entity', [
+                '%pattern' => \implode(', ', $common),
+                '%entity' => $this->domainHandler->getList($id)->label(),
+              ]);
+            }
+          }
+        }
+      }
+    }
+
+    if (!empty($error)) {
+      $form_state->setErrorByName('patterns', $error);
     }
   }
 
@@ -138,6 +152,7 @@ class InstitutionDomainListForm extends EntityForm {
     );
     $this->entity->set('patterns', $patterns);
 
+    // Disable entity if there are no domain patterns.
     if ($form_state->getValue('status') && empty($patterns)) {
       $this->entity->set('status', FALSE);
       $warning = $this->t('@type %entity cannot be enabled without @field.', [
@@ -148,12 +163,9 @@ class InstitutionDomainListForm extends EntityForm {
       $this->messenger()->addWarning($warning);
     }
 
-    $exists = $this->entityTypeManager
-      ->getStorage('hei_domain_list')
-      ->loadByProperties([
-        'status' => TRUE,
-        'hei_id' => $form_state->getValue('hei_id'),
-      ]);
+    // Disable entity if another is enabled with the same Institution ID.
+    $exists = $this->domainHandler
+      ->getEnabledListByHeiId($form_state->getValue('hei_id'));
 
     if (\array_key_exists($form_state->getValue('id'), $exists)) {
       unset($exists[$form_state->getValue('id')]);
@@ -169,6 +181,7 @@ class InstitutionDomainListForm extends EntityForm {
       $this->messenger()->addWarning($warning);
     }
 
+    // Default behavior.
     $result = $this->entity->save();
     $message_args = ['%label' => $this->entity->label()];
     $message = $result == SAVED_NEW

@@ -18,6 +18,9 @@ class InstitutionDomainHandler {
   const ENTITY_TYPE = 'hei_domain_list';
   const HEI_ID = 'hei_id';
   const PATTERNS = 'patterns';
+  const STATUS = 'status';
+
+  const WILDCARDS = "/^[*?]+$/";
 
   /**
    * The entity type manager.
@@ -75,18 +78,16 @@ class InstitutionDomainHandler {
    * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList|NULL
    */
   public function getList(string $id): ?InstitutionDomainList {
-    $domain_list = NULL;
-
     $lists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties(['id' => $id]);
 
     // The lists array will contain one item at most.
     foreach ($lists as $id => $object) {
-      $domain_list = $object;
+      return $object;
     }
 
-    return $domain_list;
+    return NULL;
   }
 
   /**
@@ -95,21 +96,17 @@ class InstitutionDomainHandler {
    * @param string $hei_id
    *   The Institution ID.
    *
-   * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList|NULL
+   * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[]
    */
-  public function getListByHeiId(string $hei_id): ?InstitutionDomainList {
-    $domain_list = NULL;
-
-    $lists = $this->entityTypeManager
+  public function getEnabledListByHeiId(string $hei_id): array {
+    $domain_lists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
-      ->loadByProperties([self::HEI_ID => $hei_id]);
+      ->loadByProperties([
+        self::STATUS => TRUE,
+        self::HEI_ID => $hei_id,
+      ]);
 
-    // The lists array will contain one item at most.
-    foreach ($lists as $hei_id => $object) {
-      $domain_list = $object;
-    }
-
-    return $domain_list;
+    return $domain_lists;
   }
 
   /**
@@ -127,6 +124,43 @@ class InstitutionDomainHandler {
     }
 
     return $patterns;
+  }
+
+  /**
+   * Match a RegExp pattern.
+   *
+   * @param string $pattern
+   * @param string $string
+   *
+   * @return int|false
+   */
+  public function matchPattern($pattern, $string) {
+    $replace_chars = ['\*' => '.*', '\?' => '.'];
+    $processed_str = strtr(preg_quote($pattern, '#'), $replace_chars);
+
+    return preg_match("#^" . $processed_str . "$#i", $string);
+  }
+
+  /**
+   * Validate a RegExp pattern.
+   *
+   * @param string $pattern
+   *
+   * @return int|false
+   */
+  public function validatePattern($pattern) {
+    $parts = \explode('.', $pattern);
+    if (\count($parts) < 2) { return FALSE; }
+
+    $count = 0;
+    foreach ($parts as $part) {
+      if (empty($part)) { return FALSE; }
+      $count = (\preg_match(self::WILDCARDS, $part)) ? $count+1 : $count;
+    }
+
+    if ($count === \count($parts)) { return FALSE; }
+
+    return $this->matchPattern($pattern, NULL);
   }
 
 
