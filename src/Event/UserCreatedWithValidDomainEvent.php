@@ -1,8 +1,6 @@
-UserCreatedWithValidDomainEvent
-
 <?php
 
-namespace Drupal\ewp_institutions_user\Event;
+namespace Drupal\ewp_institutions_domains\Event;
 
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\user\UserInterface;

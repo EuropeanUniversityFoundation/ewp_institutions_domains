@@ -7,6 +7,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\UserInterface;
 use Drupal\ewp_institutions_domains\Entity\InstitutionDomainList;
 use Drupal\ewp_institutions_domains\Event\UserCreatedWithValidDomainEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -130,13 +131,15 @@ class InstitutionDomainHandler {
    *
    * @return array $patterns
    */
-  public function getPatterns(): array {
+  public function getPatterns($enabled = TRUE): array {
     $patterns = [];
 
     $lists = $this->getLists();
 
     foreach ($lists as $id => $object) {
-      $patterns[$id] = $object->patterns();
+      if (($enabled && $object->status()) || !$enabled) {
+        $patterns[$id] = $object->patterns();
+      }
     }
 
     return $patterns;
@@ -191,7 +194,7 @@ class InstitutionDomainHandler {
 
     foreach ($this->getPatterns() as $id => $patterns) {
       foreach ($patterns as $pattern) {
-        $result = $this->matchPattern($pattern, $mail[1]);
+        $result = $this->matchPattern($pattern, $domain);
         if ($result === 1) { $matches[$id][] = $pattern; }
       }
     }
@@ -271,7 +274,8 @@ class InstitutionDomainHandler {
     $mail = explode('@', $user->getEmail());
 
     $matches = $this->getMatches($mail[1]);
-    $hei_id = \array_key_first($matches);
+    $list_id = \array_keys($matches)[0];
+    $hei_id = $this->getList($list_id)->heiId();
 
     // Instantiate our event.
     $event = new UserCreatedWithValidDomainEvent($user, $mail[1], $hei_id);
