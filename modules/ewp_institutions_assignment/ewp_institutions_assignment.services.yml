@@ -1,0 +1,6 @@
+services:
+  ewp_institutions_assignment.event_subscriber:
+    class: Drupal\ewp_institutions_assignment\EventSubscriber\UserCreatedWithValidDomainEventSubscriber
+    arguments: ['@event_dispatcher', '@ewp_institutions_get.manager', '@ewp_institutions_lookup.manager', '@messenger', '@renderer', '@string_translation']
+    tags:
+      - { name: event_subscriber }
