@@ -8,6 +8,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ewp_institutions_domains\Entity\InstitutionDomainList;
+use Drupal\ewp_institutions_domains\Event\UserCreatedWithValidDomainEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Service for handling Institution domains.
@@ -33,6 +35,13 @@ class InstitutionDomainHandler {
   protected $entityTypeManager;
 
   /**
+   * Event dispatcher.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
+
+  /**
    * The logger service.
    *
    * @var \Psr\Log\LoggerInterface
@@ -44,6 +53,8 @@ class InstitutionDomainHandler {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   *   The event dispatcher service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
@@ -51,10 +62,12 @@ class InstitutionDomainHandler {
    */
   public function __construct(
       EntityTypeManagerInterface $entity_type_manager,
+      EventDispatcherInterface $event_dispatcher,
       LoggerChannelFactoryInterface $logger_factory,
       TranslationInterface $string_translation
   ) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->eventDispatcher   = $event_dispatcher;
     $this->logger            = $logger_factory->get('ewp_institutions_domains');
     $this->stringTranslation = $string_translation;
   }
@@ -167,6 +180,26 @@ class InstitutionDomainHandler {
   }
 
   /**
+   * Get all pattern matches (indexed by Institution ID) from a domain.
+   *
+   * @param string $domain
+   *
+   * @return array $matches
+   */
+  public function getMatches($domain): array {
+    $matches = [];
+
+    foreach ($this->getPatterns() as $id => $patterns) {
+      foreach ($patterns as $pattern) {
+        $result = $this->matchPattern($pattern, $mail[1]);
+        if ($result === 1) { $matches[$id][] = $pattern; }
+      }
+    }
+
+    return $matches;
+  }
+
+  /**
    * Alter the user registration form.
    *
    * @param array $form
@@ -191,14 +224,7 @@ class InstitutionDomainHandler {
 
     $mail = explode('@', $form_state->getValue(self::MAIL));
 
-    $matches = [];
-
-    foreach ($this->getPatterns() as $id => $patterns) {
-      foreach ($patterns as $pattern) {
-        $result = $this->matchPattern($pattern, $mail[1]);
-        if ($result === 1) { $matches[$id][] = $pattern; }
-      }
-    }
+    $matches = $this->getMatches($mail[1]);
 
     if (\count($matches) !== 1) {
       if (empty(\count($matches))) {
@@ -235,4 +261,23 @@ class InstitutionDomainHandler {
       $form_state->setErrorByName(self::MAIL, $error);
     }
   }
+
+  /**
+   * Dispatch event on user creation with valid domain.
+   *
+   * @param \Drupal\user\UserInterface $user
+   */
+  public function dispatchCreated(UserInterface $user) {
+    $mail = explode('@', $user->getEmail());
+
+    $matches = $this->getMatches($mail[1]);
+    $hei_id = \array_key_first($matches);
+
+    // Instantiate our event.
+    $event = new UserCreatedWithValidDomainEvent($user, $mail[1], $hei_id);
+    // Dispatch the event.
+    $this->eventDispatcher
+      ->dispatch($event, UserCreatedWithValidDomainEvent::EVENT_NAME);
+  }
+
 }

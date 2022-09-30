@@ -5,12 +5,24 @@
  * Primary module hooks for ewp_institutions_domains module.
  */
 
- use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 
- /**
-  * Implements hook_form_form_id_form_alter().
-  */
- function ewp_institutions_domains_form_user_register_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
-   $domain_handler = \Drupal::service('ewp_institutions_domains');
-   $domain_handler->formAlter($form, $form_state, $form_id);
- }
+/**
+ * Implements hook_form_form_id_form_alter().
+ */
+function ewp_institutions_domains_form_user_register_form_alter(array &$form, FormStateInterface &$form_state, $form_id) {
+  $domain_handler = \Drupal::service('ewp_institutions_domains');
+  $domain_handler->formAlter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function ewp_institutions_domains_user_presave(EntityInterface $user) {
+  if (empty($user->original)) {
+    // When a new user account is created.
+    $domain_handler = \Drupal::service('ewp_institutions_domains');
+    $domain_handler->dispatchCreated($user);
+  }
+}
