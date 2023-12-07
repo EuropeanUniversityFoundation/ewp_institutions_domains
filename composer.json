@@ -1,42 +1,34 @@
 {
-  "name": "euf/ewp_institutions_domains",
-  "type": "drupal-module",
-  "description": "Drupal module that associates domains with Institution IDs",
-  "keywords": [
-  ],
-  "homepage": "",
-  "minimum-stability": "dev",
-  "support": {
-    "issues": "",
-    "source": ""
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/EuropeanUniversityFoundation/ewp_core"
+    "name": "euf/ewp_institutions_domains",
+    "type": "drupal-module",
+    "description": "Associates email domains with Institution IDs.",
+    "keywords": [
+        "Drupal",
+        "Erasmus Without Paper",
+        "User management"
+    ],
+    "homepage": "https://github.com/EuropeanUniversityFoundation/ewp_institutions_domains",
+    "support": {
+        "issues": "https://github.com/EuropeanUniversityFoundation/ewp_institutions_domains/issues",
+        "source": "https://github.com/EuropeanUniversityFoundation/ewp_institutions_domains"
     },
-    {
-      "type": "vcs",
-      "url": "https://github.com/EuropeanUniversityFoundation/ewp_flexible_address"
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Tiago Simões",
+            "email": "tiago.simoes@uni-foundation.eu",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "euf/ewp_core": "^1.0@beta",
+        "euf/ewp_institutions": "^1.0@beta"
     },
-    {
-      "type": "vcs",
-      "url": "https://github.com/EuropeanUniversityFoundation/ewp_phone_number"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/EuropeanUniversityFoundation/ewp_contact"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/EuropeanUniversityFoundation/ewp_institutions"
-    }
-  ],
-  "require": {
-    "euf/ewp_core": "^1.0@beta",
-    "euf/ewp_flexible_address": "^1.0@beta",
-    "euf/ewp_phone_number": "^1.0@beta",
-    "euf/ewp_contact": "^1.0@beta",
-    "euf/ewp_institutions": "^1.0@beta"
-  }
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.uni-foundation.eu"
+        }
+    ]
 }
