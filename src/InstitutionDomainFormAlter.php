@@ -4,6 +4,7 @@ namespace Drupal\ewp_institutions_domains;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_domains\InstitutionDomainHandler;
@@ -16,6 +17,11 @@ class InstitutionDomainFormAlter {
   use StringTranslationTrait;
 
   const MAIL = 'mail';
+
+  /**
+   * The current user.
+   */
+  protected $currentUser;
 
   /**
    * The institution domain handler.service.
@@ -34,6 +40,8 @@ class InstitutionDomainFormAlter {
   /**
    * The constructor.
    *
+   * @param \Drupal\Core\Session\AccountProxy $current_user
+   *   A proxied implementation of AccountInterface.
    * @param \Drupal\ewp_institutions_domains\InstitutionDomainHandler $domain_handler
    *   The Institution domain handler service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
@@ -42,10 +50,12 @@ class InstitutionDomainFormAlter {
    *   The string translation service.
    */
   public function __construct(
+    AccountProxy $current_user,
     InstitutionDomainHandler $domain_handler,
     LoggerChannelFactoryInterface $logger_factory,
     TranslationInterface $string_translation
   ) {
+    $this->currentUser       = $current_user;
     $this->domainHandler     = $domain_handler;
     $this->logger            = $logger_factory->get('ewp_institutions_domains');
     $this->stringTranslation = $string_translation;
@@ -71,6 +81,13 @@ class InstitutionDomainFormAlter {
     // Ignore validation if mail already has an error.
     $errors = $form_state->getErrors();
     if (!empty($errors[self::MAIL])) {
+      return;
+    }
+
+    // Bypass validation if user has sufficient permission.
+    $bypass_allowed = $this->currentUser
+      ->hasPermission('bypass domain form validation', $this->currentUser);
+    if ($bypass_allowed) {
       return;
     }
 

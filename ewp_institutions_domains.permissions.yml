@@ -1,3 +1,8 @@
 administer institution domains:
   title: 'Administer Institution domains'
   restrict access: true
+
+bypass domain form validation:
+  title: 'Bypass domain form validation'
+  description: 'Allows a privileged user to create accounts with non-listed email domains.'
+  restrict access: true

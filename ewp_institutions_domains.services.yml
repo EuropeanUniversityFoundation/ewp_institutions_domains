@@ -5,4 +5,4 @@ services:
 
   ewp_institutions_domains.form_alter:
     class: Drupal\ewp_institutions_domains\InstitutionDomainFormAlter
-    arguments: ['@ewp_institutions_domains', '@logger.factory', '@string_translation']
+    arguments: ['@current_user', '@ewp_institutions_domains', '@logger.factory', '@string_translation']

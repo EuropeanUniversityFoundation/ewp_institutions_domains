@@ -197,14 +197,17 @@ class InstitutionDomainHandler {
     $mail = explode('@', $user->getEmail());
 
     $matches = $this->getMatches($mail[1]);
-    $list_id = \array_keys($matches)[0];
-    $hei_id = $this->getList($list_id)->heiId();
+    $list_id = \array_keys($matches)[0] ?? NULL;
 
-    // Instantiate our event.
-    $event = new UserCreatedWithValidDomainEvent($user, $mail[1], $hei_id);
-    // Dispatch the event.
-    $this->eventDispatcher
-      ->dispatch($event, UserCreatedWithValidDomainEvent::EVENT_NAME);
+    if ($list_id) {
+      $hei_id = $this->getList($list_id)->heiId();
+
+      // Instantiate our event.
+      $event = new UserCreatedWithValidDomainEvent($user, $mail[1], $hei_id);
+      // Dispatch the event.
+      $this->eventDispatcher
+        ->dispatch($event, UserCreatedWithValidDomainEvent::EVENT_NAME);
+    }
   }
 
 }
