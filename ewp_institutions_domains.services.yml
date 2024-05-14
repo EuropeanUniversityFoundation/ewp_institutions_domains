@@ -1,4 +1,8 @@
 services:
   ewp_institutions_domains:
     class: Drupal\ewp_institutions_domains\InstitutionDomainHandler
-    arguments: ['@entity_type.manager', '@event_dispatcher', '@logger.factory', '@string_translation']
+    arguments: ['@entity_type.manager', '@event_dispatcher', '@string_translation']
+
+  ewp_institutions_domains.form_alter:
+    class: Drupal\ewp_institutions_domains\InstitutionDomainFormAlter
+    arguments: ['@ewp_institutions_domains', '@logger.factory', '@string_translation']

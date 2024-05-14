@@ -3,7 +3,6 @@
 namespace Drupal\ewp_institutions_domains;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -24,8 +23,6 @@ class InstitutionDomainHandler {
   const PATTERNS = 'patterns';
   const STATUS = 'status';
 
-  const MAIL = 'mail';
-
   const WILDCARDS = "/^[*?]+$/";
 
   /**
@@ -43,33 +40,22 @@ class InstitutionDomainHandler {
   protected $eventDispatcher;
 
   /**
-   * The logger service.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
    * The constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher service.
-   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
-   *   The logger factory service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
       EntityTypeManagerInterface $entity_type_manager,
       EventDispatcherInterface $event_dispatcher,
-      LoggerChannelFactoryInterface $logger_factory,
       TranslationInterface $string_translation
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->eventDispatcher   = $event_dispatcher;
-    $this->logger            = $logger_factory->get('ewp_institutions_domains');
     $this->stringTranslation = $string_translation;
   }
 
@@ -200,69 +186,6 @@ class InstitutionDomainHandler {
     }
 
     return $matches;
-  }
-
-  /**
-   * Alter the user registration form.
-   *
-   * @param array $form
-   * @param Drupal\Core\Form\FormStateInterface $form_state
-   */
-  public function formAlter(&$form, FormStateInterface $form_state) {
-    $form['#validate'][] = [$this, 'validateEmail'];
-  }
-
-  /**
-   * Validate email address.
-   *
-   * @param array $form
-   * @param Drupal\Core\Form\FormStateInterface $form_state
-   */
-  public function validateEmail(&$form, FormStateInterface $form_state) {
-    // Ignore validation if mail already has an error.
-    $errors = $form_state->getErrors();
-    if (!empty($errors[self::MAIL])) {
-      return;
-    }
-
-    $mail = explode('@', $form_state->getValue(self::MAIL));
-
-    $matches = $this->getMatches($mail[1]);
-
-    if (\count($matches) !== 1) {
-      if (empty(\count($matches))) {
-        $error = $this->t('The account cannot be created. @message', [
-          '@message' => $this->t('The email domain %domain is not allowed.', [
-            '%domain' => $mail[1],
-          ]),
-        ]);
-      }
-      else {
-        $error = $this->t('The account cannot be created. @message', [
-          '@message' => $this->t('Please contact the system administrator.'),
-        ]);
-
-        $lists = [];
-
-        foreach ($matches as $id => $patterns) {
-          $lists[] = $this->t('@label (@id)', [
-            '@label' => $this->getList($id)->label(),
-            '@id' => $id,
-          ]);
-        }
-
-        $record = $this->t('Email validation failed: @description', [
-          '@description' => $this->t('%mail matched patterns in @lists.', [
-            '%mail' => $form_state->getValue(self::MAIL),
-            '@lists' => \implode(', ', $lists),
-          ])
-        ]);
-
-        $this->logger->error($record);
-      }
-
-      $form_state->setErrorByName(self::MAIL, $error);
-    }
   }
 
   /**
