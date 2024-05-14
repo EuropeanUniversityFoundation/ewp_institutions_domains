@@ -165,7 +165,7 @@ class InstitutionDomainHandler {
 
     if ($count === \count($parts)) { return FALSE; }
 
-    return $this->matchPattern($pattern, NULL);
+    return $this->matchPattern($pattern, '');
   }
 
   /**
