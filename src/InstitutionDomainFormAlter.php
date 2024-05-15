@@ -68,16 +68,16 @@ class InstitutionDomainFormAlter {
    * @param Drupal\Core\Form\FormStateInterface $form_state
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
-    $form['#validate'][] = [$this, 'validateEmail'];
+    $form['#validate'][] = [$this, 'userFormValidate'];
   }
 
   /**
-   * Validate email address.
+   * Validate the email domain in the user registration form.
    *
    * @param array $form
    * @param Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function validateEmail(&$form, FormStateInterface $form_state) {
+  public function userFormValidate(&$form, FormStateInterface $form_state) {
     // Ignore validation if mail already has an error.
     $errors = $form_state->getErrors();
     if (!empty($errors[self::MAIL])) {
@@ -91,15 +91,32 @@ class InstitutionDomainFormAlter {
       return;
     }
 
-    $mail = explode('@', $form_state->getValue(self::MAIL));
+    $email = $form_state->getValue(self::MAIL);
+    $error = $this->validateEmailDomain($email);
 
-    $matches = $this->domainHandler->getMatches($mail[1]);
+    if ($error) {
+      $form_state->setErrorByName(self::MAIL, $error);
+    }
+  }
+
+  /**
+   * Validate email domain.
+   *
+   * @param string $email
+   *
+   * @return string $error|NULL
+   */
+  public function validateEmailDomain(string $email): ?string {
+    $email_components = explode('@', $email);
+    $email_domain = $email_components[1];
+
+    $matches = $this->domainHandler->getMatches($email_domain);
 
     if (\count($matches) !== 1) {
       if (empty(\count($matches))) {
         $error = $this->t('The account cannot be created. @message', [
           '@message' => $this->t('The email domain %domain is not allowed.', [
-            '%domain' => $mail[1],
+            '%domain' => $email_domain,
           ]),
         ]);
       }
@@ -118,8 +135,8 @@ class InstitutionDomainFormAlter {
         }
 
         $record = $this->t('Email validation failed: @description', [
-          '@description' => $this->t('%mail matched patterns in @lists.', [
-            '%mail' => $form_state->getValue(self::MAIL),
+          '@description' => $this->t('%email matched patterns in @lists.', [
+            '%email' => $email,
             '@lists' => \implode(', ', $lists),
           ])
         ]);
@@ -127,8 +144,10 @@ class InstitutionDomainFormAlter {
         $this->logger->error($record);
       }
 
-      $form_state->setErrorByName(self::MAIL, $error);
+      return $error;
     }
+
+    return NULL;
   }
 
 }
