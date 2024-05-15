@@ -6,4 +6,5 @@ core_version_requirement: ^9 || ^10
 dependencies:
   - ewp_core:ewp_core
   - ewp_institutions:ewp_institutions
+  - ewp_institutions_domains:ewp_institutions_domains
   - openid_connect:openid_connect

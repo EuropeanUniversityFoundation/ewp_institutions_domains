@@ -9,3 +9,4 @@ dependencies:
   - ewp_institutions:ewp_institutions_get
   - ewp_institutions:ewp_institutions_lookup
   - ewp_institutions:ewp_institutions_user
+  - ewp_institutions_domains:ewp_institutions_domains
