@@ -6,7 +6,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\ewp_institutions_domains\Event\UserCreatedWithValidDomainEvent;
+use Drupal\ewp_institutions_assignment\Event\UserCreatedWithValidDomainEvent;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use Drupal\ewp_institutions_user\Event\SetUserInstitutionEvent;
@@ -111,15 +111,15 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
     //   ->get('import');
     $import = TRUE;
 
-    $exists = $this->heiManager->getInstitution($event->hei_id);
+    $exists = $this->heiManager->getInstitution($event->heiId);
 
     if (empty($exists) && $import) {
-      $lookup = $this->heiLookup->lookup($event->hei_id);
+      $lookup = $this->heiLookup->lookup($event->heiId);
 
-      if (\array_key_exists($event->hei_id, $lookup)) {
+      if (\array_key_exists($event->heiId, $lookup)) {
         $exists = $this->heiManager->getInstitution(
-          $event->hei_id,
-          $create_from = $lookup[$event->hei_id]
+          $event->heiId,
+          $create_from = $lookup[$event->heiId]
         );
       }
     }

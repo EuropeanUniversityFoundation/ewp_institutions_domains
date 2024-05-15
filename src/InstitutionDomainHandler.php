@@ -8,8 +8,6 @@ use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\UserInterface;
 use Drupal\ewp_institutions_domains\Entity\InstitutionDomainList;
-use Drupal\ewp_institutions_domains\Event\UserCreatedWithValidDomainEvent;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Service for handling Institution domains.
@@ -20,7 +18,6 @@ class InstitutionDomainHandler {
 
   const ENTITY_TYPE = 'hei_domain_list';
   const HEI_ID = 'hei_id';
-  const PATTERNS = 'patterns';
   const STATUS = 'status';
 
   const WILDCARDS = "/^[*?]+$/";
@@ -33,29 +30,18 @@ class InstitutionDomainHandler {
   protected $entityTypeManager;
 
   /**
-   * Event dispatcher.
-   *
-   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
-   */
-  protected $eventDispatcher;
-
-  /**
    * The constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   The event dispatcher service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
-      EntityTypeManagerInterface $entity_type_manager,
-      EventDispatcherInterface $event_dispatcher,
-      TranslationInterface $string_translation
+    EntityTypeManagerInterface $entity_type_manager,
+    TranslationInterface $string_translation
   ) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->eventDispatcher   = $event_dispatcher;
     $this->stringTranslation = $string_translation;
   }
 
@@ -186,28 +172,6 @@ class InstitutionDomainHandler {
     }
 
     return $matches;
-  }
-
-  /**
-   * Dispatch event on user creation with valid domain.
-   *
-   * @param \Drupal\user\UserInterface $user
-   */
-  public function dispatchCreated(UserInterface $user) {
-    $mail = explode('@', $user->getEmail());
-
-    $matches = $this->getMatches($mail[1]);
-    $list_id = \array_keys($matches)[0] ?? NULL;
-
-    if ($list_id) {
-      $hei_id = $this->getList($list_id)->heiId();
-
-      // Instantiate our event.
-      $event = new UserCreatedWithValidDomainEvent($user, $mail[1], $hei_id);
-      // Dispatch the event.
-      $this->eventDispatcher
-        ->dispatch($event, UserCreatedWithValidDomainEvent::EVENT_NAME);
-    }
   }
 
 }

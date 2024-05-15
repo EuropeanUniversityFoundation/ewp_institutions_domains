@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ewp_institutions_domains\Event;
+namespace Drupal\ewp_institutions_assignment\Event;
 
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\user\UserInterface;
@@ -31,7 +31,7 @@ class UserCreatedWithValidDomainEvent extends Event {
    *
    * @var string
    */
-  public $hei_id;
+  public $heiId;
 
   /**
    * Constructs the object.
@@ -46,7 +46,7 @@ class UserCreatedWithValidDomainEvent extends Event {
   public function __construct(UserInterface $user, string $domain, string $hei_id) {
     $this->user = $user;
     $this->domain = $domain;
-    $this->hei_id = $hei_id;
+    $this->heiId = $hei_id;
   }
 
 }
