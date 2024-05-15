@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for ewp_institutions_domains_openid_connect module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * OpenID Connect pre authorize hook.
+ *
+ * @param \Drupal\user\UserInterface|bool $account
+ * @param array $context
+ *   An associative array with context information:
+ *   - tokens:         An array of tokens.
+ *   - user_data:      An array of user and session data.
+ *   - userinfo:       An array of user information.
+ *   - plugin_id:      The plugin identifier.
+ *   - sub:            The remote user identifier.
+ *
+ * @return \Drupal\user\UserInterface|false
+ */
+function ewp_institutions_domains_openid_connect_openid_connect_pre_authorize($account, array $context) {
+  // The following rule only applies to user account creation.
+  if (!$account) {
+    $email = $context['userinfo']['email'];
+
+    // Reuse the user form validation.
+    $form_alter \Drupal::service('ewp_institutions_domains.form_alter');
+    $error = $form_alter->validateEmailDomain($email);
+
+    if ($error) {
+      \Drupal::messenger()->addError($error);
+
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+}
