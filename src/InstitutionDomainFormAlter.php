@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_domains\InstitutionDomainHandler;
 
@@ -104,9 +105,9 @@ class InstitutionDomainFormAlter {
    *
    * @param string $email
    *
-   * @return string $error|NULL
+   * @return TranslatableMarkup $error|NULL
    */
-  public function validateEmailDomain(string $email): ?string {
+  public function validateEmailDomain(string $email): ?TranslatableMarkup {
     $email_components = explode('@', $email);
     $email_domain = $email_components[1];
 
