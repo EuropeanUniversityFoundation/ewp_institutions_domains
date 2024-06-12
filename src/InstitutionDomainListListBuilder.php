@@ -35,7 +35,7 @@ class InstitutionDomainListListBuilder extends ConfigEntityListBuilder {
     $row['hei_id'] = $entity->heiId();
     $row['patterns']['data'] = [
       '#type' => 'markup',
-      '#markup' => implode("<br />", $entity->patterns())
+      '#markup' => implode("<br />", $entity->patterns()),
     ];
     return $row + parent::buildRow($entity);
   }

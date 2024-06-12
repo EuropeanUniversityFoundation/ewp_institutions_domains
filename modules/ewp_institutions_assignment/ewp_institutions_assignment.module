@@ -13,6 +13,7 @@ use Drupal\ewp_institutions_assignment\Event\UserCreatedWithValidDomainEvent;
  */
 function ewp_institutions_assignment_user_presave(EntityInterface $user) {
   if (empty($user->original)) {
+    /** @disregard P1013 */
     $mail = explode('@', $user->getEmail());
 
     $domain_handler = \Drupal::service('ewp_institutions_domains');

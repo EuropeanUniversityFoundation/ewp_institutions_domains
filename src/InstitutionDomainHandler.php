@@ -5,8 +5,6 @@ namespace Drupal\ewp_institutions_domains;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\UserInterface;
 use Drupal\ewp_institutions_domains\Entity\InstitutionDomainList;
 
 /**
@@ -64,7 +62,7 @@ class InstitutionDomainHandler {
    * @param string $id
    *   The Institution domain list ID.
    *
-   * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList|NULL
+   * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList|null
    */
   public function getList(string $id): ?InstitutionDomainList {
     $lists = $this->entityTypeManager
@@ -121,7 +119,9 @@ class InstitutionDomainHandler {
    * Match a RegExp pattern.
    *
    * @param string $pattern
+   *   The RegExp pattern to be matched.
    * @param string $string
+   *   The string to match.
    *
    * @return int|false
    */
@@ -136,20 +136,28 @@ class InstitutionDomainHandler {
    * Validate a RegExp pattern.
    *
    * @param string $pattern
+   *   The RegExp pattern to be validated.
    *
    * @return int|false
    */
   public function validatePattern($pattern) {
     $parts = \explode('.', $pattern);
-    if (\count($parts) < 2) { return FALSE; }
+    if (\count($parts) < 2) {
+      return FALSE;
+    }
 
     $count = 0;
     foreach ($parts as $part) {
-      if (empty($part)) { return FALSE; }
-      $count = (\preg_match(self::WILDCARDS, $part)) ? $count+1 : $count;
+      if (empty($part)) {
+        return FALSE;
+      }
+
+      $count = (\preg_match(self::WILDCARDS, $part)) ? $count + 1 : $count;
     }
 
-    if ($count === \count($parts)) { return FALSE; }
+    if ($count === \count($parts)) {
+      return FALSE;
+    }
 
     return $this->matchPattern($pattern, '');
   }
@@ -158,6 +166,7 @@ class InstitutionDomainHandler {
    * Get all pattern matches (indexed by Institution ID) from a domain.
    *
    * @param string $domain
+   *   The domain to be matched.
    *
    * @return array $matches
    */
@@ -167,7 +176,9 @@ class InstitutionDomainHandler {
     foreach ($this->getPatterns() as $id => $patterns) {
       foreach ($patterns as $pattern) {
         $result = $this->matchPattern($pattern, $domain);
-        if ($result === 1) { $matches[$id][] = $pattern; }
+        if ($result === 1) {
+          $matches[$id][] = $pattern;
+        }
       }
     }
 

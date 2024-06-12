@@ -93,7 +93,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
   public static function getSubscribedEvents() {
     return [
       UserCreatedWithValidDomainEvent::EVENT_NAME => [
-        'onUserCreatedWithValidDomain'
+        'onUserCreatedWithValidDomain',
       ],
     ];
   }
@@ -106,9 +106,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
    */
   public function onUserCreatedWithValidDomain(UserCreatedWithValidDomainEvent $event) {
     $hei_list = [];
-    // $import = $this->configFactory
-    //   ->get('ewp_institutions_assignment.settings')
-    //   ->get('import');
+    // TODO: get import settings from config.
     $import = TRUE;
 
     $exists = $this->heiManager->getInstitution($event->heiId);
@@ -125,10 +123,10 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
     }
 
     if ($exists) {
-      foreach ($exists as $id => $hei) {
+      foreach ($exists as $hei) {
         $hei_list[] = $hei;
         $renderable = $hei->toLink()->toRenderable();
-        $message = $this->t('User %user\'s email domain matches @link', [
+        $message = $this->t("User %user's email domain matches @link", [
           '%user' => $event->user->label(),
           '@link' => $this->renderer->render($renderable),
         ]);
@@ -148,7 +146,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
       );
     }
     else {
-      $message = $this->t('No match found for user %user\'s email domain.', [
+      $message = $this->t("No match found for user %user's email domain.", [
         '%user' => $event->user->label(),
       ]);
       $this->messenger->addWarning($message);

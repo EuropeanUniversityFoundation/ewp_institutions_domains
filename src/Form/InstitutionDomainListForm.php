@@ -4,7 +4,6 @@ namespace Drupal\ewp_institutions_domains\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\ewp_institutions_domains\InstitutionDomainHandler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -99,7 +98,7 @@ class InstitutionDomainListForm extends EntityForm {
 
     if (!empty($new_patterns)) {
       // First validate the patterns.
-      foreach ($new_patterns as $idx => $pattern) {
+      foreach ($new_patterns as $pattern) {
         $match_result = $this->domainHandler->validatePattern($pattern);
         if ($match_result === FALSE) {
           $error = $this->t('Pattern %pattern is invalid.', [
@@ -158,7 +157,7 @@ class InstitutionDomainListForm extends EntityForm {
       $warning = $this->t('@type %entity cannot be enabled without @field.', [
         '@type' => $this->entity->getEntityType()->getLabel(),
         '%entity' => $this->entity->label(),
-        '@field' => $this->t('Domain patterns')
+        '@field' => $this->t('Domain patterns'),
       ]);
       $this->messenger()->addWarning($warning);
     }
@@ -176,7 +175,7 @@ class InstitutionDomainListForm extends EntityForm {
       $warning = $this->t('@type %entity cannot be enabled when @condition.', [
         '@type' => $this->entity->getEntityType()->getLabel(),
         '%entity' => $this->entity->label(),
-        '@condition' => $this->t('the same Institution ID is already in use.')
+        '@condition' => $this->t('the same Institution ID is already in use.'),
       ]);
       $this->messenger()->addWarning($warning);
     }

@@ -8,7 +8,6 @@ use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\ewp_institutions_domains\InstitutionDomainHandler;
 
 /**
  * EWP Institutions Domains form alter service.
@@ -66,7 +65,9 @@ class InstitutionDomainFormAlter {
    * Alter the user registration form.
    *
    * @param array $form
+   *   The form array.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
     $form['#validate'][] = [$this, 'userFormValidate'];
@@ -76,7 +77,9 @@ class InstitutionDomainFormAlter {
    * Validate the email domain in the user registration form.
    *
    * @param array $form
+   *   The form array.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   public function userFormValidate(&$form, FormStateInterface $form_state) {
     // Ignore validation if mail already has an error.
@@ -104,8 +107,9 @@ class InstitutionDomainFormAlter {
    * Validate email domain.
    *
    * @param string $email
+   *   The email address to validate.
    *
-   * @return TranslatableMarkup $error|NULL
+   * @return Drupal\Core\StringTranslation\TranslatableMarkup $error|null
    */
   public function validateEmailDomain(string $email): ?TranslatableMarkup {
     $email_components = explode('@', $email);
@@ -139,7 +143,7 @@ class InstitutionDomainFormAlter {
           '@description' => $this->t('%email matched patterns in @lists.', [
             '%email' => $email,
             '@lists' => \implode(', ', $lists),
-          ])
+          ]),
         ]);
 
         $this->logger->error($record);

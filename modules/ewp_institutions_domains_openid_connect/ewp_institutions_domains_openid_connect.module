@@ -5,12 +5,11 @@
  * Primary module hooks for ewp_institutions_domains_openid_connect module.
  */
 
-use Drupal\Core\Entity\EntityInterface;
-
 /**
  * OpenID Connect pre authorize hook.
  *
  * @param \Drupal\user\UserInterface|bool $account
+ *   The user account or FALSE.
  * @param array $context
  *   An associative array with context information:
  *   - tokens:         An array of tokens.
