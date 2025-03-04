@@ -2,7 +2,7 @@ name: EWP Institutions Domains OpenID Connect
 type: module
 description: Enforces email domain validation on OpenID Connect authorization.
 package: EWP
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9 || ^10 || ^11
 dependencies:
   - ewp_core:ewp_core
   - ewp_institutions:ewp_institutions

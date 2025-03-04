@@ -2,7 +2,7 @@ name: EWP Institutions assignment
 type: module
 description: Assigns an Institution to a user based on their email domain.
 package: EWP
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9 || ^10 || ^11
 dependencies:
   - ewp_core:ewp_core
   - ewp_institutions:ewp_institutions

@@ -2,7 +2,7 @@ name: EWP Institutions Domains
 type: module
 description: Associates email domains with Institution IDs.
 package: EWP
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9 || ^10 || ^11
 configure: entity.hei_domain_list.collection
 dependencies:
   - ewp_core:ewp_core
