@@ -20,6 +20,8 @@ class InstitutionDomainFormAlter {
 
   /**
    * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
 
@@ -53,7 +55,7 @@ class InstitutionDomainFormAlter {
     AccountProxy $current_user,
     InstitutionDomainHandler $domain_handler,
     LoggerChannelFactoryInterface $logger_factory,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->currentUser       = $current_user;
     $this->domainHandler     = $domain_handler;
@@ -66,7 +68,7 @@ class InstitutionDomainFormAlter {
    *
    * @param array $form
    *   The form array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
@@ -78,7 +80,7 @@ class InstitutionDomainFormAlter {
    *
    * @param array $form
    *   The form array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public function userFormValidate(&$form, FormStateInterface $form_state) {
@@ -90,7 +92,7 @@ class InstitutionDomainFormAlter {
 
     // Bypass validation if user has sufficient permission.
     $bypass_allowed = $this->currentUser
-      ->hasPermission('bypass domain form validation', $this->currentUser);
+      ->hasPermission('bypass domain form validation');
     if ($bypass_allowed) {
       return;
     }
@@ -109,7 +111,8 @@ class InstitutionDomainFormAlter {
    * @param string $email
    *   The email address to validate.
    *
-   * @return Drupal\Core\StringTranslation\TranslatableMarkup $error|null
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|null
+   *   An error message, if one exists.
    */
   public function validateEmailDomain(string $email): ?TranslatableMarkup {
     $email_components = explode('@', $email);

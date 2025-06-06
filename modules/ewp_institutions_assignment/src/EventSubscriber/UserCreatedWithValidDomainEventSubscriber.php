@@ -77,7 +77,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
     InstitutionLookupManager $hei_lookup,
     MessengerInterface $messenger,
     RendererInterface $renderer,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->eventDispatcher   = $event_dispatcher;
     $this->heiManager        = $hei_manager;
@@ -101,12 +101,12 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
   /**
    * Subscribe to the user created with valid domain event.
    *
-   * @param \Drupal\ewp_institutions_domains\Event\UserCreatedWithValidDomainEvent $event
+   * @param \Drupal\ewp_institutions_assignment\Event\UserCreatedWithValidDomainEvent $event
    *   The event object.
    */
   public function onUserCreatedWithValidDomain(UserCreatedWithValidDomainEvent $event) {
     $hei_list = [];
-    // TODO: get import settings from config.
+    // @todo get import settings from config.
     $import = TRUE;
 
     $exists = $this->heiManager->getInstitution($event->heiId);

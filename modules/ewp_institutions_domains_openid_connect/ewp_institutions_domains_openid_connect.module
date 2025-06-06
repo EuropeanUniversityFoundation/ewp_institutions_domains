@@ -18,7 +18,7 @@
  *   - plugin_id:      The plugin identifier.
  *   - sub:            The remote user identifier.
  *
- * @return \Drupal\user\UserInterface|false
+ * @return bool
  */
 function ewp_institutions_domains_openid_connect_openid_connect_pre_authorize($account, array $context) {
   // The following rule only applies to user account creation.
@@ -34,7 +34,7 @@ function ewp_institutions_domains_openid_connect_openid_connect_pre_authorize($a
 
       return FALSE;
     }
-
-    return TRUE;
   }
+
+  return TRUE;
 }

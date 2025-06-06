@@ -37,7 +37,7 @@ class InstitutionDomainHandler {
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->stringTranslation = $string_translation;
@@ -47,8 +47,10 @@ class InstitutionDomainHandler {
    * Get a list of Institution domain lists.
    *
    * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[]
+   *   An array of Institution domain lists.
    */
   public function getLists(): array {
+    /** @var \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[] */
     $lists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadMultiple();
@@ -63,8 +65,10 @@ class InstitutionDomainHandler {
    *   The Institution domain list ID.
    *
    * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList|null
+   *   An Institution domain list, if one exists.
    */
   public function getList(string $id): ?InstitutionDomainList {
+    /** @var \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[] */
     $lists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties(['id' => $id]);
@@ -84,8 +88,10 @@ class InstitutionDomainHandler {
    *   The Institution ID.
    *
    * @return \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[]
+   *   An array of Institution domain lists, keyed by entity ID.
    */
   public function getEnabledListByHeiId(string $hei_id): array {
+    /** @var \Drupal\ewp_institutions_domains\Entity\InstitutionDomainList[] */
     $domain_lists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties([
@@ -99,7 +105,8 @@ class InstitutionDomainHandler {
   /**
    * Get a list of domain patterns per domain list.
    *
-   * @return array $patterns
+   * @return array
+   *   An array of domain patterns.
    */
   public function getPatterns($enabled = TRUE): array {
     $patterns = [];
@@ -124,6 +131,7 @@ class InstitutionDomainHandler {
    *   The string to match.
    *
    * @return int|false
+   *   The result of the pattern match.
    */
   public function matchPattern($pattern, $string) {
     $replace_chars = ['\*' => '.*', '\?' => '.'];
@@ -139,6 +147,7 @@ class InstitutionDomainHandler {
    *   The RegExp pattern to be validated.
    *
    * @return int|false
+   *   The result of the pattern validation.
    */
   public function validatePattern($pattern) {
     $parts = \explode('.', $pattern);
@@ -163,12 +172,13 @@ class InstitutionDomainHandler {
   }
 
   /**
-   * Get all pattern matches (indexed by Institution ID) from a domain.
+   * Get all pattern matches from a domain.
    *
    * @param string $domain
    *   The domain to be matched.
    *
-   * @return array $matches
+   * @return array
+   *   An array of pattern matches keyed by Institution ID.
    */
   public function getMatches($domain): array {
     $matches = [];
