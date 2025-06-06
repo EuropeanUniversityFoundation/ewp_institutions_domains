@@ -1,0 +1,8 @@
+# Schema for the configuration files of the EWP Institutions assignment module.
+ewp_institutions_assignment.settings:
+  type: config_object
+  label: 'EWP Institutions assignment settings'
+  mapping:
+    import:
+      type: boolean
+      label: 'Import Institution if not present in the system.'

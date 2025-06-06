@@ -1,0 +1,7 @@
+ewp_institutions_assignment.settings:
+  path: 'admin/ewp/hei/domains/settings'
+  defaults:
+    _title: 'Assignment settings'
+    _form: 'Drupal\ewp_institutions_assignment\Form\SettingsForm'
+  requirements:
+    _permission: 'administer institution domains'

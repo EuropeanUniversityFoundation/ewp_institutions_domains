@@ -2,6 +2,7 @@
 
 namespace Drupal\ewp_institutions_assignment\EventSubscriber;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -19,6 +20,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterface {
 
   use StringTranslationTrait;
+
+  /**
+   * Config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * Event dispatcher.
@@ -58,6 +66,8 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
   /**
    * Constructs event subscriber.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher service.
    * @param \Drupal\ewp_institutions_get\InstitutionManager $hei_manager
@@ -72,6 +82,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
    *   The string translation service.
    */
   public function __construct(
+    ConfigFactoryInterface $config_factory,
     EventDispatcherInterface $event_dispatcher,
     InstitutionManager $hei_manager,
     InstitutionLookupManager $hei_lookup,
@@ -79,6 +90,7 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
     RendererInterface $renderer,
     TranslationInterface $string_translation,
   ) {
+    $this->configFactory     = $config_factory;
     $this->eventDispatcher   = $event_dispatcher;
     $this->heiManager        = $hei_manager;
     $this->heiLookup         = $hei_lookup;
@@ -106,8 +118,10 @@ class UserCreatedWithValidDomainEventSubscriber implements EventSubscriberInterf
    */
   public function onUserCreatedWithValidDomain(UserCreatedWithValidDomainEvent $event) {
     $hei_list = [];
-    // @todo get import settings from config.
-    $import = TRUE;
+
+    $import = $this->configFactory
+      ->get('ewp_institutions_assignment.settings')
+      ->get('import') ?? FALSE;
 
     $exists = $this->heiManager->getInstitution($event->heiId);
 

@@ -1,0 +1,6 @@
+ewp_institutions_assignment.settings:
+  title: Assignment settings
+  parent: entity.hei_domain_list.overview
+  description: Settings for Institution domains assignment
+  route_name: ewp_institutions_assignment.settings
+  weight: 10
