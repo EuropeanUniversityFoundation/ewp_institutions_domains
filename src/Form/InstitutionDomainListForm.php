@@ -86,12 +86,9 @@ class InstitutionDomainListForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // Convert multiline text to array of patterns.
+    $value = $form_state->getValue('patterns');
     $new_patterns = array_filter(
-      array_map(
-        'trim', explode(
-          "\n", $form_state->getValue('patterns')
-        )
-      ), 'strlen'
+      array_map('trim', explode("\n", trim($value)))
     );
 
     $new_hei_id = $form_state->getValue('hei_id');
@@ -142,12 +139,9 @@ class InstitutionDomainListForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     // Convert multiline text to array of patterns.
+    $value = $form_state->getValue('patterns');
     $patterns = array_filter(
-      array_map(
-        'trim', explode(
-          "\n", $form_state->getValue('patterns')
-        )
-      ), 'strlen'
+      array_map('trim', explode("\n", trim($value)))
     );
     $this->entity->set('patterns', $patterns);
 

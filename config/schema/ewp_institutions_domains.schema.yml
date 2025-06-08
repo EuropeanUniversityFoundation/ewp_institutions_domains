@@ -3,18 +3,26 @@ ewp_institutions_domains.hei_domain_list.*:
   label: Institution domain list
   mapping:
     id:
-      type: string
+      type: machine_name
       label: ID
     label:
       type: label
       label: Label
     uuid:
-      type: string
+      type: uuid
     hei_id:
       type: string
       label: Institution ID
+      constraints:
+        Regex:
+          pattern: /^(\w[a-zA-Z0-9_-]*\w\.)+[a-zA-Z]{2,}$/
     patterns:
       type: sequence
       label: Domain patterns
+      constraints:
+        NotBlank: []
       sequence:
         type: string
+        constraints:
+          Regex:
+            pattern: /^(\*\.)?(\w[a-zA-Z0-9_-]*\w\.)+[a-zA-Z]{2,}$/
